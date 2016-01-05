@@ -8,11 +8,14 @@ using System.Linq;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
+using Couchbase;
+using Couchbase.Configuration.Client;
 
 namespace MyWindowsService
 {
     public partial class Service1 : ServiceBase
     {
+        bool firstRun;
         public Service1()
         {
             InitializeComponent();
@@ -20,21 +23,85 @@ namespace MyWindowsService
 
         protected override void OnStart(string[] args)
         {
-            Log(new[] { "OnStart:", DateTime.Now.ToString()} );
+            firstRun = true;
+
+            Log(
+                LogToCouchbase(new[] { "OnStart:", DateTime.Now.ToString() })
+            );
         }
 
         protected override void OnStop()
         {
-            Log(new[] { "OnStop:", DateTime.Now.ToString() });
+            Log(
+                 LogToCouchbase(new[] { "OnStop:", DateTime.Now.ToString() })
+             );
         }
 
-        private void Log(IEnumerable<string> lines)
+        private IEnumerable<string> Log(IEnumerable<string> lines)
         {
             try
             {
                 File.AppendAllLines("c:\\MyWindowsService.log.txt", lines);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                lines.ToList().AddRange(
+                    new[] {
+                        "Excpetion:",
+                        ex.Message,
+                        ex.StackTrace
+                    });
+            }
+
+            return lines;
+        }
+
+        private IEnumerable<string> LogToCouchbase(IEnumerable<string> lines)
+        {
+            try
+            {
+                if (firstRun)
+                {
+                    var config = new ClientConfiguration
+                    {
+                        Servers = new List<Uri> { new Uri("http://10.0.0.4:8091") }
+                    };
+
+                    ClusterHelper.Initialize(config);
+
+                    firstRun = false;
+                }
+
+                // this will overwrite any old log lines!
+                var result =
+                    ClusterHelper
+                    .GetBucket("default")
+                    .Upsert<dynamic>(
+                        "MyWindowsService.log.txt",
+                        new
+                        {
+                            id = "MyWindowsService.log.txt",
+                            log = string.Join("\n", lines)
+                        }
+                    );
+
+                lines.ToList().AddRange(
+                new[] {
+                        "Couchbase result: ",
+                        result.Success.ToString()
+                });
+            }
+            catch (Exception ex)
+            {
+                lines.ToList().AddRange(
+                new[] {
+                        "Excpetion:",
+                        ex.Message,
+                        ex.StackTrace
+                });
+            }
+
+            return lines;
         }
     }
 }
