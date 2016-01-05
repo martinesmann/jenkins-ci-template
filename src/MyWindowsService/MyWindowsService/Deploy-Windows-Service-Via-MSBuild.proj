@@ -1,0 +1,85 @@
+<Project DefaultTargets="CopyOutputs;DeployService" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="14.0">
+
+  <!-- These settings control what the service's name, description etc appear in services.msc task panel. -->
+	<PropertyGroup Label="ServiceMetaData">
+		<ServiceName>MyWindowsService</ServiceName>
+		<ServiceDisplayName>My Windows Service (Jenkins CI test)</ServiceDisplayName>
+		<ServiceDescription>A new service, that changes the world for the greater good.</ServiceDescription>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+	</PropertyGroup>
+
+	<Choose>
+		<When Condition="'$(DeploymentServerName)' == ''">
+			<PropertyGroup>
+				<!-- You can choose any path here. For convenience, I'm using C: -->
+				<DeploymentFolder>C:\$(ServiceName)\</DeploymentFolder>
+			</PropertyGroup>
+		</When>
+		<Otherwise>
+			<PropertyGroup>
+				<!-- should be in \\serverName format-->
+				<DeploymentServer Condition="'$(DeploymentServerName)' != ''">$(DeploymentServerName)</DeploymentServer>
+				<DeploymentFolder>$(DeploymentServer)\C$\$(ServiceName)</DeploymentFolder>
+				<!-- 4:5:4 => Planned: Application: Upgrade. For more reason codes, run "sc stop" -->
+				<DeploymentReason>4:5:4</DeploymentReason>
+			</PropertyGroup>
+		</Otherwise>
+	</Choose>
+	<PropertyGroup>
+		<ProjectName>MyWindowsService</ProjectName>
+		<ProjectFile>$(MSBuildProjectDirectory)\$(ProjectName).csproj</ProjectFile>
+		<ServiceExecutablePath>C:\$(ServiceName)\$(ProjectName).exe</ServiceExecutablePath>
+	</PropertyGroup>
+
+	<Target Name="DeployService">
+		
+		<Exec Command="safeServiceStop $(ServiceName) $(DeploymentServer) $(DeploymentReason)" />
+		
+		<Exec Command="safeServiceDelete $(ServiceName) $(DeploymentServer)" ContinueOnError="true" />
+		<Exec Command="sc $(DeploymentServer) create $(ServiceName) binPath= &quot;$(ServiceExecutablePath)&quot; start= delayed-auto displayName= &quot;$(ServiceDisplayName)&quot;" />
+		<Exec Command="sc $(DeploymentServer) description $(ServiceName) &quot;$(ServiceDescription)&quot;" />
+		<Exec Command="safeServiceStart $(ServiceName) $(DeploymentServer) " ContinueOnError="true" />
+	</Target>
+
+	<Target Name="CopyOutputs">
+		<MSBuild Projects="$(MSBuildProjectFullPath)"
+				 Properties="ImportProjectFile=true" Targets="Rebuild">
+			<Output ItemName="ProjectOutputs" TaskParameter="TargetOutputs"/>
+		</MSBuild>
+		<!-- This is just for debugging purposes -->
+		<Message Text="%0a%0dProjectOutputs:%0a%0d    @(ProjectOutputs,'%0a%0d    ')" Importance="low" />
+
+		<Message Text="Stopping Service..." />
+		
+		<!-- 4:5:4 => Planned: Application: Upgrade -->
+		<Exec Command="safeServiceStop $(ServiceName) $(DeploymentServer) $(DeploymentReason)" ContinueOnError="true" />
+
+		<Message Text="Copying files..." />
+		<Copy SourceFiles="@(ProjectOutputs)"
+			  DestinationFolder="$(DeploymentFolder)"
+			  SkipUnchangedFiles="true"
+			  OverwriteReadOnlyFiles="true" />
+	</Target>
+
+	<!-- 
+    These elements will only be processed when in the context of the
+    above Target. This is because of the Condition constraint on these items
+    -->
+	<Import Project="$(ProjectFile)" Condition="'$(ImportProjectFile)'=='true'" />
+	<!-- 
+    Here we need to override the Build target with our own that will 
+    generate the correct results.
+    -->
+	<Target Name="Rebuild"
+		  Condition="'$(ImportProjectFile)'=='true'"
+		  DependsOnTargets="$(BuildDependsOn)"
+		  Outputs="@(AllOutputs->'%(FullPath)')" >
+
+		<CreateItem Include="$(OutputPath)\**\*">
+			<Output ItemName="AllOutputs" TaskParameter="Include"/>
+		</CreateItem>
+
+		<Message Text="Custom build invoked!" Importance="high"/>
+
+	</Target>
+</Project>
