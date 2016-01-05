@@ -1,13 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.ServiceProcess;
-using System.Text;
-using System.Threading.Tasks;
 using Couchbase;
 using Couchbase.Configuration.Client;
 
@@ -88,7 +82,9 @@ namespace MyWindowsService
                 lines.AddRange(
                 new[] {
                         "Couchbase result: ",
-                        result.Success.ToString()
+                        result.Success.ToString(),
+                        "Document Key: ",
+                        "MyWindowsService.log.txt"
                 });
             }
             catch (Exception ex)
