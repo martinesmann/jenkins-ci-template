@@ -26,18 +26,18 @@ namespace MyWindowsService
             firstRun = true;
 
             Log(
-                LogToCouchbase(new[] { "OnStart:", DateTime.Now.ToString() })
+                LogToCouchbase(new List<string> { "OnStart:", DateTime.Now.ToString() })
             );
         }
 
         protected override void OnStop()
         {
             Log(
-                 LogToCouchbase(new[] { "OnStop:", DateTime.Now.ToString() })
+                 LogToCouchbase(new List<string> { "OnStop:", DateTime.Now.ToString() })
              );
         }
 
-        private IEnumerable<string> Log(IEnumerable<string> lines)
+        private List<string> Log(List<string> lines)
         {
             try
             {
@@ -45,7 +45,7 @@ namespace MyWindowsService
             }
             catch (Exception ex)
             {
-                lines.ToList().AddRange(
+                lines.AddRange(
                     new[] {
                         "Excpetion:",
                         ex.Message,
@@ -56,7 +56,7 @@ namespace MyWindowsService
             return lines;
         }
 
-        private IEnumerable<string> LogToCouchbase(IEnumerable<string> lines)
+        private List<string> LogToCouchbase(List<string> lines)
         {
             try
             {
@@ -85,7 +85,7 @@ namespace MyWindowsService
                         }
                     );
 
-                lines.ToList().AddRange(
+                lines.AddRange(
                 new[] {
                         "Couchbase result: ",
                         result.Success.ToString()
@@ -93,7 +93,7 @@ namespace MyWindowsService
             }
             catch (Exception ex)
             {
-                lines.ToList().AddRange(
+                lines.AddRange(
                 new[] {
                         "Excpetion:",
                         ex.Message,
