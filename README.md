@@ -10,8 +10,7 @@ The Windows Service install scripts were created by:
 
 
 #Continuous Deployment with Jenkins & .NET
-
-// Comment from Matthew: could we shorten this section? I assume most .NET devs will already know about continuous deployment.
+This is the first blog post of two about Jenkins and Couchbase. This first post is a general introduction to Continues Deployment with Jenkins and .NET. The second blog post will be focusing more on how to use Jenkins to set-up test data in Couchbase before running your test code.
 
 As a .NET developer you are probably using Visual Studio. Hitting F5 in Visual Studio compiles the source code and starts the debugger. If you are like me you will hit F5 many times during development and bug hunting.
 
@@ -85,7 +84,7 @@ Jenkins has plugins for understanding Git repositories, MSBuild files and variou
 
  ![plugin screen](content/images/Screen Shot 2016-01-04 at 14.34.30.png)
 
- Jenkins now understands MSBuild files and Git source control, but we still need to configure the MSBuild Plugin with a path to the msbuild.exe we would like to use.
+ Jenkins now understands MSBuild files and Git source control, but we still need to configure the MSBuild Plugin with a path to the `msbuild.exe` we would like to use.
 
 ####MSBuild configuration
 When the MSBuild plugin was installed it added its own configuration options to the Jenkins global configuration page.
@@ -97,7 +96,7 @@ When the MSBuild plugin was installed it added its own configuration options to 
 5. Click the "MSBuild installations..." button
 6. Click “Add MSBuild”
 7. Give the new MSBuild configuration a name like "MSBuild-default".
-8. In the path field, insert the fully qualified path to "msbuild.exe"
+8. In the path field, insert the fully qualified path to `msbuild.exe`
 
  On my server the path is: `C:\Program Files (x86)\MSBuild\14.0\Bin\msbuild.exe`, but this can be different on your system. 
  
@@ -228,7 +227,7 @@ The next step is to compile and build the source code.
 ####NuGet package restore
 If we were to build the project right now it would fail due to missing NuGet packages. Therefore we need to restore the NuGet packages before attempting to build the source. 
 
-nuget.exe makes this task very easy, we simply need to fire this command on the solution file:
+`nuget.exe` makes this task very easy, we simply need to fire this command on the solution file:
 
 `nuget restore "path to *.sln" file`
 
