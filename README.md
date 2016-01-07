@@ -1,34 +1,40 @@
 #Jenkins-CI-Template
-This repo is intended to make it easy to setup Jenkins to build and deploy a Windows Service. 
+This repo is intended to make it easy to set up Jenkins to build and deploy a Windows Service. 
 
-This Windows Service is depending on NuGet packages and custom build, deploy and install scripts. 
+This Windows Service depends on NuGet packages and some custom build, deploy and install scripts. 
 
 ###Credits:
-I did not create or author the Windows Service install scripts and therefore I would like to point you to the original author:
+The Windows Service install scripts were created by:
 
 [mrchief](http://mrchief.calepin.co/deploying-windows-service-via-msbuild)
 
 
-#Continues Deployment with Jenkins & .NET
-If you are a .NET developer you have most likely crossed roads with Visual Studio, the preferred IDE for .NET developers, at least on Windows that’s true. Hitting ‘F5’ in Visual Studio compiles the source code and starts the debugger. If you are like me you will hit ‘F5’ many times during development and “bug hunting”.
+#Continuous Deployment with Jenkins & .NET
 
-But what happens when the code is ready for prime time? deployment! and updates?
+// Comment from Matthew: could we shorten this section? I assume most .NET devs will already know about continuous deployment.
 
-Recently I have been working in Visual Studio 2015, a lot! hitting ‘F5’ a lot! and then when I needed to publish the application I chose the most lazy option out there, manually copying the executable to the destination, manually installing and manually starting the application.
+As a .NET developer you are probably using Visual Studio. Hitting F5 in Visual Studio compiles the source code and starts the debugger. If you are like me you will hit F5 many times during development and bug hunting.
 
-It’s “fun” the first few times, but in the end it gets really difficult and hard to keep track with changes and manual updates/deployments. To be honest this manual approach does not scale very well, it takes unnecessary time, and it’s open to human errors in the deployment process. 
+But what happens when the code is ready for prime time? Deployment happens!
 
-A more mature option would be to have an automated infrastructure to handle all the details in deployment, such an infrastructure is often referred to as Continuous Integration/ Continuous Deployment. 
+When I needed to publish an application I often choose the laziest option: manually copying the executable to the destination, manually installing and manually starting the application.
+
+It’s “fun” the first few times, but in the end it gets really difficult; particularly keeping track of changes and manual updates/deployments. To be honest, this manual approach does not scale very well: it takes unnecessary time and it’s prone to human errors in the deployment process. 
+
+A more mature option would be to have an automated infrastructure to handle deployment. Such infrastructure is often referred to as Continuous Integration/ Continuous Deployment. 
 
 Using Continuous Integration/Continuous Deployment, enables a workflow like this:
-Code, build and test locally on your dev. box (as usual) 
-Checkin source code to a “development” branch in your favourite Source Control Management System.
-Optional code review by team members.
-Merge your changes to the “main” (release) branch.
-The CI Server will detect the changes to the ”main” branch and will: download, compile and deploy/install your application on the release server. (no manual steps here, it’s all scripted and automatic)
 
-##Continues Deployment
-There are many Continues Deployment (CI) servers out there; all with their "personal" caveats. In my setup I need a CI Server that understands the components in my application.
+ * Code, build and test locally on your dev. box (as usual) 
+ * Check source code in to a development branch in your favourite Source Control Management System.
+* Optional code review by team members.
+* Merge your changes to the main (release) branch.
+* The CI Server will detect the changes to the main branch and download, compile and deploy/install your application on the release server. 
+
+There are no manual steps: it’s all scripted and automatic.
+
+##Continuous Deployment
+You can choose from a number of Continuous Integration/Deployment (CI) tools, each with its own caveats. In my set-up I need a CI Server that understands the components in my application.
 
 So let’s take a closer look at my application architecture and components:
 
@@ -38,24 +44,24 @@ So let’s take a closer look at my application architecture and components:
 * **NuGet**: Package Manager used for all references.
 * **Source Control**: Git (github.com)
 
-The CI Server should be able to understand all components mentioned above and (as I’m lazy) it should be really easy to maintain and setup.
+The CI Server should be able to understand all components mentioned above and (as I’m lazy) it should be really easy to maintain and set up.
 
-I did a bit of research and from other people's experiences and blog posts I found that one CI Server was a suitable candidate, Jenkins.
+I did a bit of research and from other people's experiences and blog posts I found that Jenkins seemed to suit my needs best.
 
 ###Jenkins
 Jenkins is a build server with a plugin architecture that allows the community to extend what Jenkins can “understand”. This architecture makes it easy to extend Jenkins to support MSBuild files, Git version control etc.
 
 [Meet Jenkins](https://wiki.jenkins-ci.org/display/JENKINS/Meet+Jenkins)
 
-###Setup
-Jenkins is installed on a build server (in my setup the build server is the same as the release server, but this can be configured differently). 
+###Set-up
+Jenkins is installed on a build server. In my set-up the build server is the same as the release server, but this can be configured differently. 
 
 *Download and install* Jenkins for your platform here: https://jenkins-ci.org/
 
-After installation Jenkins is by default available on [http://localhost:8080/](http://localhost:8080/)
+After installation Jenkins is available on its default port: [http://localhost:8080/](http://localhost:8080/)
 
 ###Configure Jenkins
-Jenkins has plugins for understanding Github repositories, MSBuild files and various other technologies. In the current setup we only need to extend Jenkins with those two plugins.
+Jenkins has plugins for understanding Git repositories, MSBuild files and various other technologies. In the current set-up we only need to extend Jenkins with those two plugins.
 
 ####Install the Git Plugin for Jenkins:
 1. Open Jenkins, [http://localhost:8080/](http://localhost:8080/)
@@ -79,10 +85,10 @@ Jenkins has plugins for understanding Github repositories, MSBuild files and var
 
  ![plugin screen](content/images/Screen Shot 2016-01-04 at 14.34.30.png)
 
- Jenkins now understands MSBuild files and Git source control, but we still need to configure the  MSBuild Plugin with a path to the msbuild.exe we would like to use. In short MSBuild is a build system for .NET used both by Visual Studio and 3rd parties to compile .NET code.
+ Jenkins now understands MSBuild files and Git source control, but we still need to configure the MSBuild Plugin with a path to the msbuild.exe we would like to use.
 
 ####MSBuild configuration
-When the MSBuild plugin was installed it added it’s own configuration options to the Jenkins global configuration page.
+When the MSBuild plugin was installed it added its own configuration options to the Jenkins global configuration page.
 
 1. Navigate to [http://localhost:8080/](http://localhost:8080/)
 2. Click "Manage Jenkins"
@@ -116,40 +122,40 @@ After successful installation you have MSBuild available on the build server and
 With this step done Jenkins is ready to build and deploy with MSBuild and Git.
  
 ###Create a new Jenkins build project
-It’s now time to point Jenkins to the source code and start building the code.
+It’s now time to point Jenkins to the source code and start building.
 
 1. Open Jenkins, [http://localhost:8080/](http://localhost:8080/) 
-2. Select "new" 
+2. Select "new". 
  
  Direct link [http://localhost:8080/view/All/newJob](http://localhost:8080/view/All/newJob) 
  
 3. Give the project a name "Windows Service Deployment" or something you can remember.
 4. Select “Freestyle project”.
-5. Select “Ok”
+5. Select “Ok”.
  
  ![plugin screen](content/images/Screen Shot 2016-01-04 at 14.41.38.png)
 
-6. Next expand the “Source Code Management” region by selecting “Git”.
+6. Next, expand the “Source Code Management” region by selecting “Git”.
 
  ![plugin screen](content/images/Screen Shot 2016-01-05 at 10.43.31.png)
  
 
 7. Complete the Git configuration by filling in the blanks with a URL to your repository and optionally credentials (if needed). 
  
- Jenkins can also work with branches, in this setup I will leave the branch to be default (Master) but you can select whatever fits your needs.
+ Jenkins can also work with branches. In this set-up I will leave the branch as the default (Master) but you can select whatever fits your needs.
 
- If you haven’t already a Git repository ready for testing, you can use the pre-cooked repository here: 
+ If you don't already have a Git repository ready for testing, you can use the pre-cooked repository here: 
 
  [https://github.com/martinesmann/jenkins-ci-template](https://github.com/martinesmann/jenkins-ci-template) 
 
  The source code contains a few more files than your average "Hello Windows Service" solution. I will explain relevant parts later on as they are used. For now we will just treat this as a "Hello World" solution.
 
-8. If you haven’t done so already click “Save” to persist your changes and navigate back to the main "Project" page.
+8. If you haven’t done so already, click “Save” to persist your changes and navigate back to the main "Project" page.
 
 ####Testing the Git configuration
 Now we can test if the Git Source Management tab has been configured correctly and that we can clone the source code. 
 
-We are not yet building anything only cloning the source, building will come in a moment. First let's make sure Jenkins can clone the source from the repository.
+We are not yet building anything, only cloning the source. Building will come in a moment. First, let's make sure Jenkins can clone the source from the repository.
 
 1. Navigate to the "Project" page
 2. Click the “Build Now” to start a "Build".
@@ -186,7 +192,7 @@ First time build. Skipping changelog.
 Finished: SUCCESS
  ```
 
- *What’s important to note here is the **path** to the "workspace" as this is where the source code is downloaded to and build from. This knowledge can be very helpful when debugging the CI setup.*
+ *What’s important to note here is the **path** to the "workspace" as this is where the source code is downloaded to and built from. This knowledge can be very helpful when debugging the CI setup.*
 
 
 ####Building the source
@@ -202,7 +208,7 @@ The next step is to compile and build the source code.
  
  We need to configure a few values here:
  
- 1. First select the MSBuild version (we configured this in a previous step)
+ 1. First, select the MSBuild version (we configured this in a previous step).
  2. Then give the path to the *.sln or *.proj file for your project. 
  
        *For the pre-cooked repository the path is: 
@@ -229,14 +235,14 @@ nuget.exe makes this task very easy, we simply need to fire this command on the 
 
 No surprise Jenkins can handle multiple build steps, so let's add a build step to enable NuGet restore.
 
-1. Navigate to the "project" page 
-2. Select "Configure" 
-3. Find the "Add build step"
-4. Click "Add build step"
+1. Navigate to the "project" page. 
+2. Select "Configure".
+3. Find the "Add build step".
+4. Click "Add build step".
 
  ![image](content/images/Screen Shot 2016-01-05 at 21.42.13.png)
  
-5. Select "Execute Windows batch command"
+5. Select "Execute Windows batch command".
 6. Re-arrange the build order by dragging the new build step to the top.
  
  ![image](content/images/Screen Shot 2016-01-05 at 21.44.36.png)
@@ -272,7 +278,7 @@ We are now ready to build the project!
 *Congratulations!* You have now successfully configured Jenkins to download, compile and deploy a .NET Windows Service! Automation ROCKS!
  
 ###The source code:
-So far we have not given much attention to the source code, but let’s take a moments to walk through the repository content and structure. 
+So far we have not given much attention to the source code, but let’s take a moment to walk through the repository content and structure. 
 
 If you navigate to the repository root at: 
 
@@ -280,7 +286,7 @@ If you navigate to the repository root at:
 
 you will find all the usual files as README etc. but also a file called `nuget.exe`.
 
-`Nuget.exe` is the executable used to restore the solutions NuGet package dependencies. You could argue whether or not it’s good practice to have binary files in your source control, but in this case it’s a required dependency for the build system and therefore I have included it.
+`nuget.exe` is the executable used to restore the solution's NuGet package dependencies. You could argue whether or not it’s good practice to have binary files in your source control, but in this case it’s a required dependency for the build system and therefore I have included it.
 
 I have placed `nuget.exe` in the root, to keep it separated from the actual source code and make it easy to find when setting up the build in Jenkins.
 
