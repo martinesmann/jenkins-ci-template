@@ -101,17 +101,17 @@ When the MSBuild plugin was installed it added it’s own configuration options 
 
 ![plugin screen](content/images/Screen Shot 2016-01-05 at 13.49.47.png)
 
- **MSBuild:** 
-*MSBuild is installed with Visual Studio, it’s the build system that Visual Studio uses when you select "build" or hit "F5".* 
+####MSBuild installation
+MSBuild is installed with Visual Studio, it’s the build system that Visual Studio uses when you select "build" or hit "F5".
 
- *It’s not always feasible or even possible to install Visual Studio on your build machine. This could be due to license and security issues etc.* 
+It’s not always feasible or even possible to install Visual Studio on your build machine. This could be due to license and security issues etc. 
 
- *To accommodate this Microsoft has released a separate package called: 
-"Microsoft Build Tools 2015" that contains all you need for for using MSBuild.*
+To accommodate this Microsoft has released a separate package called: 
+"Microsoft Build Tools 2015" that contains all you need for for using MSBuild.
 
  *Direct download: [https://www.microsoft.com/en-us/download/details.aspx?id=48159](https://www.microsoft.com/en-us/download/details.aspx?id=48159)* 
 
- *After successful installation you have MSBuild available on the build server and with that you get the path value for step 8, above.*
+After successful installation you have MSBuild available on the build server and with that you get the path value for step 8, above.
 
 With this step done Jenkins is ready to build and deploy with MSBuild and Git.
  
