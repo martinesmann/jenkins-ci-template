@@ -10,7 +10,7 @@ The Windows Service install scripts were created by:
 
 
 #Continuous Deployment with Jenkins & .NET
-This is the first blog post of two about Jenkins and Couchbase. This first post is a general introduction to Continues Deployment with Jenkins and .NET. The second blog post will be focusing more on how to use Jenkins to set-up test data in Couchbase before running your test code.
+This is the first blog post of two about Jenkins and Couchbase. This first post is a general introduction to Continuous Deployment with Jenkins and .NET. The second blog post will be focusing more on how to use Jenkins to set-up test data in Couchbase before running your test code.
 
 As a .NET developer you are probably using Visual Studio. Hitting F5 in Visual Studio compiles the source code and starts the debugger. If you are like me you will hit F5 many times during development and bug hunting.
 
